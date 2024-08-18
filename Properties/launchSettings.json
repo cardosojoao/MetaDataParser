@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MetaDataParser": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\devl\\zx\\proj\\ZXGame\\2.source\\data"
+    }
+  }
+}
