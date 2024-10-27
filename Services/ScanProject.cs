@@ -153,10 +153,10 @@ namespace MetaDataParser.Services
                 case "files":
                     StorageGroupFilesScan(pathStorage, storage);
                     break;
-                case "dictionary":
+                case "dictionaryfiles":
+                case "dictionarybinnary":
                     StorageGroupFilesScan(pathStorage, storage);
                     break;
-
                 default:
                     break;
             }
