@@ -1,38 +1,29 @@
 ﻿using MetaDataParser.Entities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
 namespace MetaDataParser.Services
 {
     public class ScanProject : IScanProject
     {
-        private IServiceMetaData _serviceMetadata;
+        private readonly IServiceMetaData _serviceMetadata;
         public ScanProject(IServiceMetaData serviceMetadata)
         {
             _serviceMetadata = serviceMetadata;
         }
 
-        public List<string> Scan(string rootPath)
+        public List<StorageGroup> Scan(string rootPath)
         {
             List<string> result = new();
-
             var files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
-            var sprites = files.Where(f => Path.GetExtension(f).Equals(".spr", StringComparison.InvariantCultureIgnoreCase));
+            //var sprites = files.Where(f => Path.GetExtension(f).Equals(".spr", StringComparison.InvariantCultureIgnoreCase));
             var storageGroups = files.Where(f => Path.GetFileName(f).Equals("_storagegroup.metadata", StringComparison.InvariantCultureIgnoreCase));
-            StorageProcess(storageGroups);
-
-            return result;
+            var storageGroupsData = StorageScan(storageGroups);
+            return storageGroupsData;
         }
 
 
-        private void SpriteProcess(IEnumerable<string> files)
+        private void SpriteMetaDataCheck(IEnumerable<string> files)
         {
             foreach (var file in files)
             {
@@ -44,7 +35,11 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void PatternProcess(IEnumerable<string> files)
+        /// <summary>
+        /// Create mmetadata file is not exist
+        /// </summary>
+        /// <param name="files"></param>
+        private void PatternMetaDataCheck(IEnumerable<string> files)
         {
             foreach (var file in files)
             {
@@ -57,7 +52,7 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void SceneProcess(IEnumerable<string> files)
+        private void SceneMetaDataCheck(IEnumerable<string> files)
         {
             foreach (var file in files)
             {
@@ -65,7 +60,7 @@ namespace MetaDataParser.Services
                 string name = Path.GetFileNameWithoutExtension(file);
                 string fileMetadata = name + ".metadata";
                 string filePath = Path.Combine(Path.GetDirectoryName(file), fileMetadata);
-                if (File.Exists(filePath))
+                if (System.IO.File.Exists(filePath))
                 {
                     var sceneMetadata = _serviceMetadata.ReadObject<Scene>(filePath);
                     sceneMetadata.Length = length;
@@ -79,10 +74,29 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void FilesProcess(string path, List<string> files)
+        private void FilesMetaDataCheck(IEnumerable<string> files)
         {
+            foreach (var file in files)
+            {
+                string name = Path.GetFileNameWithoutExtension(file);
+                string fileMetadata = name + ".metadata";
+                string filePath = Path.Combine(Path.GetDirectoryName(file), fileMetadata);
+                if (!System.IO.File.Exists(filePath))
+                {
+                    var sceneMetadata = new FileGeneric() { Name = name};
+                    _serviceMetadata.CreateObject<Entities.FileGeneric>(filePath, sceneMetadata);
+                }
+            }
+        }
+
+
+        private void FilesListMetaDataCheck(string path, List<string> files)
+        {
+
+
             for (int index = 0; index < files.Count; index++)
             {
+
                 string file = files[index];
                 string dir = Path.GetDirectoryName(file);
                 if (dir == string.Empty)
@@ -94,21 +108,33 @@ namespace MetaDataParser.Services
 
 
 
-        private void StorageProcess(IEnumerable<string> storageGroups)
+        //private void StorageScan(IEnumerable<string> storageGroups)
+        //{
+        //    foreach (string group in storageGroups)
+        //    {
+        //        string groupPath = Path.GetDirectoryName(group);
+        //        //IEnumerable<string> groupFiles = spriteFiles.Where<string>(f => Path.GetDirectoryName(f).StartsWith(groupPath));
+        //        StorageGroup storage = StorageGroupProcess(group);
+        //        WriteStorageFiles(groupPath, storage);
+        //    }
+        //}
+
+        private List<StorageGroup> StorageScan(IEnumerable<string> storageFiles)
         {
-            foreach (string group in storageGroups)
+            List<StorageGroup> result = new List<StorageGroup>();
+            foreach (string storageFile in storageFiles)
             {
-                string groupPath = Path.GetDirectoryName(group);
+                //string groupPath = Path.GetDirectoryName(group);
                 //IEnumerable<string> groupFiles = spriteFiles.Where<string>(f => Path.GetDirectoryName(f).StartsWith(groupPath));
-                StorageGroup storage = StorageGroupProcess(group);
-                WriteStorageFiles(groupPath, storage);
-
-
+                StorageGroup storage = StorageGroupScan(storageFile);
+                storage.Path = Path.GetDirectoryName(storageFile);
+                result.Add(storage);
+                //WriteStorageFiles(groupPath, storage);
             }
+            return result;
         }
 
-
-        private StorageGroup StorageGroupProcess(string storageGroup)
+        private StorageGroup StorageGroupScan(string storageGroup)
         {
             string pathStorage = Path.GetDirectoryName(storageGroup);
             StorageGroup storage = JsonSerializer.Deserialize<StorageGroup>(File.ReadAllText(storageGroup));
@@ -116,16 +142,19 @@ namespace MetaDataParser.Services
             switch (type)
             {
                 case "sprite":
-                    StorageGroupSpriteProcess(pathStorage, storage);
+                    StorageGroupSpriteScan(pathStorage, storage);
                     break;
                 case "pattern":
-                    StorageGroupPatternProcess(pathStorage, storage);
+                    StorageGroupPatternScan(pathStorage, storage);
                     break;
                 case "scene":
-                    StorageGroupSceneProcess(pathStorage, storage);
+                    StorageGroupSceneScan(pathStorage, storage);
                     break;
                 case "files":
-                    StorageGroupFilesProcess(pathStorage, storage);
+                    StorageGroupFilesScan(pathStorage, storage);
+                    break;
+                case "dictionary":
+                    StorageGroupFilesScan(pathStorage, storage);
                     break;
 
                 default:
@@ -140,10 +169,10 @@ namespace MetaDataParser.Services
         /// <param name="path"></param>
         /// <param name="storage"></param>
         /// <param name="files"></param>
-        private void StorageGroupSpriteProcess(string path, StorageGroup storage)
+        private void StorageGroupSpriteScan(string path, StorageGroup storage)
         {
             var files = Directory.EnumerateFiles(path, storage.Filter, SearchOption.AllDirectories);
-            SpriteProcess(files);
+            SpriteMetaDataCheck(files);
             int index = storage.FirstId;
             foreach (string file in files)
             {
@@ -168,10 +197,16 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void StorageGroupPatternProcess(string path, StorageGroup storage)
+        /// <summary>
+        /// storage pattern files 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="storage"></param>
+        private void StorageGroupPatternScan(string path, StorageGroup storage)
         {
             var files = Directory.EnumerateFiles(path, storage.Filter, SearchOption.AllDirectories);
-            PatternProcess(files);
+            
+            PatternMetaDataCheck(files);
             foreach (string file in files)
             {
                 string fileMetada = GetMetadataFilePath(file);
@@ -192,10 +227,16 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void StorageGroupSceneProcess(string path, StorageGroup storage)
+        /// <summary>
+        /// process storage of scenes
+        /// by default the scenes are zip using zx0 applications
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="storage"></param>
+        private void StorageGroupSceneScan(string path, StorageGroup storage)
         {
             var files = Directory.EnumerateFiles(path, storage.Filter, SearchOption.AllDirectories);
-            SceneProcess(files);
+            SceneMetaDataCheck(files);
             foreach (string file in files)
             {
                 string fileMetada = GetMetadataFilePath(file);
@@ -214,10 +255,36 @@ namespace MetaDataParser.Services
             }
         }
 
-        private void StorageGroupFilesProcess(string path, StorageGroup storage)
+        private void StorageGroupFilesScan(string path, StorageGroup storage)
+        {
+            var files = Directory.EnumerateFiles(path, storage.Filter, SearchOption.AllDirectories);
+            FilesMetaDataCheck(files);
+            //var files = storage.FileList;
+            int order = 0;
+            foreach (string file in files)
+            {
+                //string fileMetada = GetMetadataFilePath(file);
+                //Pattern data = _serviceMetadata.ReadObject<Pattern>(fileMetada);
+                //if (data.Included)
+                {
+                    storage.FileList.Add(new StorageGroupFile()
+                    {
+                        Name = Path.GetFileName(file),
+                        Path = Path.GetRelativePath(path, file).Replace('\\', '/'),
+                        //Tag = data.Tag,
+                        //Length = data.Length,
+                        Order = order
+                    });
+                    order++;
+                }
+            }
+        }
+
+
+        private void StorageGroupFilesListScan(string path, StorageGroup storage)
         {
 
-            FilesProcess(path, storage.Files);
+            FilesListMetaDataCheck(path, storage.Files);
             //var files = storage.FileList;
             int order = 0;
             foreach (string file in storage.Files)
@@ -238,14 +305,13 @@ namespace MetaDataParser.Services
                 }
             }
         }
-
         private static string GetMetadataFilePath(string filePath)
         {
             filePath = Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + ".metadata");
             return filePath;
         }
 
-
+        /*
         private void WriteStorageFiles(string rootPath, StorageGroup storage)
         {
             int patternCode = 0;
@@ -344,5 +410,6 @@ namespace MetaDataParser.Services
                 }
             }
         }
+        */
     }
 }

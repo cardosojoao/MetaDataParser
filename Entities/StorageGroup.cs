@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MetaDataParser.Entities
 {
@@ -24,25 +18,46 @@ namespace MetaDataParser.Entities
         [JsonPropertyOrder(-6)]
         public int InitialOffset { get; set; } = 0;
 
+        /// <summary>
+        /// number of initial bank
+        /// </summary>
         [JsonPropertyName("InitalBank")]
         [JsonPropertyOrder(-5)]
         public string InitalBank { get; set; }
+
+        /// <summary>
+        /// first id to be assigned to create objects (seed of sequence id)
+        /// </summary>
         [JsonPropertyName("FirstId")]
         [JsonPropertyOrder(-4)]
         public int FirstId { get; set; }
+        /// <summary>
+        /// prefix to be added file created
+        /// </summary>
         [JsonPropertyName("Prefix")]
         [JsonPropertyOrder(-3)]
         public string Prefix { get; set; }
+        /// <summary>
+        /// when size of elements is variable
+        /// </summary>
         [JsonPropertyName("Dynamic")]
         [JsonPropertyOrder(-2)]
         public bool Dynamic { get; set; }
+        /// <summary>
+        /// the list have a max number of entriesd
+        /// </summary>
         [JsonPropertyName("MaxEntries")]
         [JsonPropertyOrder(-1)]
         public int MaxEntries { get; set; }
+        /// <summary>
+        /// Type fo scene, is used to process different types of data
+        /// </summary>
         [JsonPropertyName("Type")]
         [JsonPropertyOrder(0)]
         public string Type { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [JsonPropertyName("IndexHeader")]
         [JsonPropertyOrder(0)]
         public bool IndexHeader { get; set; }
@@ -54,9 +69,6 @@ namespace MetaDataParser.Entities
         [JsonPropertyOrder(0)]
         public string Filter { get; set; }
 
-        //[JsonPropertyName("Address")]
-        //[JsonPropertyOrder(0)]
-        //public string Address { get; set; }
 
         /// <summary>
         /// the storage won't process files just includes the list of files
@@ -73,7 +85,8 @@ namespace MetaDataParser.Entities
         public List<string> Files { get; set; }
 
 
-
+        [JsonIgnore]
+        public string Path { get; set; }
 
         [JsonIgnore]
         public string IndexHeaderName

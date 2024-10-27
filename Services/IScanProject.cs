@@ -1,9 +1,11 @@
 ﻿
+using MetaDataParser.Entities;
+
 namespace MetaDataParser.Services
 {
     public interface IScanProject
     {
-        List<string> Scan(string rootPath);
+        List<StorageGroup> Scan(string rootPath);
 
     }
 }

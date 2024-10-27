@@ -1,4 +1,6 @@
-﻿using MetaDataParser.Services;
+﻿using MetaDataParser.Entities;
+using MetaDataParser.Services;
+using MetaDataParser.Services.Process;
 using Microsoft.Extensions.DependencyInjection;
 namespace MetaDataParser
 {
@@ -25,7 +27,11 @@ namespace MetaDataParser
             .AddSingleton<IServiceMetaData, ServiceMetaData>()
             .BuildServiceProvider();
             var scan = services.GetRequiredService<IScanProject>();
-            scan.Scan(args[0]);
+            List<StorageGroup> groups = scan.Scan(args[0]);
+
+            ProcessProject process = new ProcessProject();
+            process.Process(groups);
+
             Console.WriteLine("Finished refresh");
             Environment.ExitCode = 0;
         }
