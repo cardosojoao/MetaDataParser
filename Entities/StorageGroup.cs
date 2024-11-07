@@ -69,6 +69,10 @@ namespace MetaDataParser.Entities
         [JsonPropertyOrder(0)]
         public string Filter { get; set; }
 
+        [JsonPropertyName("IndexByLevel")]
+        [JsonPropertyOrder(0)]
+        public bool IndexByLevel { get; set; }
+
 
         /// <summary>
         /// the storage won't process files just includes the list of files

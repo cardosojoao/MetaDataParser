@@ -24,11 +24,23 @@ namespace MetaDataParser.Services.Process
             StringBuilder indexTable = new(512);
             //StringBuilder indexTable2 = new(512);
             //indexTable2.Append(storage.Prefix).Append("_Pattern_Table:\n");
-            indexTable.Append(storage.Prefix).Append("_index_table:").Append('\n');
+            if (!storage.IndexByLevel)
+            {
+                indexTable.Append(storage.Prefix).Append("_index_table:").Append('\n');
+            }
+            else
+            {
+                indexHeader.Append(storage.Prefix).AppendLine("_Root_index_table:");
+            }
+
+
             indexDataFirst.Append("\t\tmmu\t$").Append(storage.Org).Append(", ").Append(storage.InitalBank).Append('\n');
             indexDataFirst.Append("\t\torg\t\t$").Append(storage.Org).Append("\n");
-            indexHeader.Append(";\n;\tSprites ID\n;\n");
+            
+
+
             storage.SortFiles();
+            string currentLevel = string.Empty;
 
             foreach (StorageGroupFile file in storage.FileList)
             {
@@ -39,6 +51,18 @@ namespace MetaDataParser.Services.Process
                     pageSize = 0;
                     indexData.Append("\n\t\tmmu\t$").Append(storage.Org).Append(", (").Append(storage.InitalBank).Append('+').Append(pageNumber.ToString()).Append(")\n");
                     indexData.Append("\t\torg\t\t$").Append(storage.Org).Append("\n");
+                }
+                
+                if(storage.IndexByLevel)
+                {
+                    string fileLevel = Path.GetDirectoryName(file.Path);
+                    if( !fileLevel.Equals(currentLevel, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        currentLevel = fileLevel;
+                        
+                        indexTable.Append(storage.Prefix).Append('_').Append(currentLevel).AppendLine("_index_table:");
+                        indexHeader.Append("\t\tdw\t").Append(storage.Prefix).Append('_').Append(currentLevel).AppendLine("_index_table");
+                    }
                 }
                 indexTable.Append("\t\tdw\t$").Append((pageSize + pageNumberbin).ToString("X4")).Append('\n');
                 //if (storage.Dynamic)
@@ -57,6 +81,7 @@ namespace MetaDataParser.Services.Process
                 patternCode++;
             }
 
+            indexDataFirst.Append(indexHeader);
             indexDataFirst.Append(indexTable);
             indexDataFirst.Append("\n\n");
             indexDataFirst.Append("\t\torg\t\t$").Append((Convert.ToInt32(storage.Org, 16) + storage.FirstBankBegin).ToString("X4").ToLower());
