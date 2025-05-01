@@ -28,7 +28,7 @@ namespace MetaDataParser.Services.Process
             indexDataFirst.Append("\t\torg\t\t$").Append(storage.Org).Append("\n");
             indexHeader.Append(";\n;\tSprites ID\n;\n");
 
-            storage.SortFiles();
+            storage.SortFilesByOrder();
 
 
             foreach (StorageGroupFile file in storage.FileList)
@@ -47,6 +47,7 @@ namespace MetaDataParser.Services.Process
                     indexTable.Append("\t\tdw\t$").Append((pageSize + pageNumberbin).ToString("X4")).Append('\n');
                     if (storage.Dynamic)
                     {
+                        indexData.Append(file.Name).AppendLine(":");
                         indexData.Append("\t\tdb\t$").Append(file.Width.ToString("X2")).Append("\t\t; Width\n");
                         indexData.Append("\t\tdb\t$").Append(file.Height.ToString("X2")).Append("\t\t; Heigth\n");
                         pageSize += 2;

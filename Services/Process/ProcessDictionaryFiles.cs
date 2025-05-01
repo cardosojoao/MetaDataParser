@@ -32,7 +32,7 @@ namespace MetaDataParser.Services.Process
                 indexDataFirst.Append("\t\tmmu\t$").Append(storage.Org).Append(", ").Append(storage.InitalBank).Append('\n');
                 indexDataFirst.Append("\t\torg\t$").AppendLine(storage.Org);
             }
-            storage.SortFiles();
+            storage.SortFilesByOrder();
             foreach (StorageGroupFile file in storage.FileList)
             {
                 string fileName = Path.GetFileNameWithoutExtension(file.Name);

@@ -131,16 +131,15 @@ namespace MetaDataParser.Entities
         }
 
 
-        public void SortFiles()
+        public void SortFilesByFilePath()
+        {
+            FileList.Sort((f1, f2) => f1.Path.CompareTo(f2.Path));
+        }
+
+        public void SortFilesByOrder()
         {
             FileList.Sort((f1, f2) => f1.Order.CompareTo(f2.Order));
         }
-        /*
-            "inital_bank" : "SW_PRITE_PATTERNS_FIRST_BANK",
-            "first_id" : 1,
-            "index_id" : "_sw_index_h.asm"
-            "index_table" : "_sw_index.asm"
-            "data_table" : "_sw_data.asm"
-        */
+
     }
 }

@@ -16,7 +16,6 @@ namespace MetaDataParser.Services
         {
             List<string> result = new();
             var files = Directory.EnumerateFiles(rootPath, "*.*", SearchOption.AllDirectories);
-            //var sprites = files.Where(f => Path.GetExtension(f).Equals(".spr", StringComparison.InvariantCultureIgnoreCase));
             var storageGroups = files.Where(f => Path.GetFileName(f).Equals("_storagegroup.metadata", StringComparison.InvariantCultureIgnoreCase));
             var storageGroupsData = StorageScan(storageGroups);
             return storageGroupsData;
@@ -64,14 +63,20 @@ namespace MetaDataParser.Services
                 {
                     var sceneMetadata = _serviceMetadata.ReadObject<Scene>(filePath);
                     sceneMetadata.Length = length;
+                    sceneMetadata.Order = GetOrderFromFileName(filePath);
                     _serviceMetadata.UpdateObject<Scene>(filePath, sceneMetadata);
                 }
                 else
                 {
-                    var sceneMetadata = new Scene() { Name = name, Length = length };
+                    var sceneMetadata = new Scene() { Name = name, Length = length, Order = GetOrderFromFileName(filePath)  };
                     _serviceMetadata.CreateObject<Scene>(filePath, sceneMetadata);
                 }
             }
+        }
+
+        private int  GetOrderFromFileName(string fileName)
+        {
+            return int.Parse(Path.GetFileNameWithoutExtension(fileName)[^3..].ToString());
         }
 
         private void FilesMetaDataCheck(IEnumerable<string> files)

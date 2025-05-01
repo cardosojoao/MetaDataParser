@@ -28,7 +28,7 @@ namespace MetaDataParser.Services.Process
             indexDataFirst.Append("\t\torg\t\t$").Append(storage.Org).Append("\n");
             indexHeader.Append(";\n;\tSprites ID\n;\n");
 
-            storage.SortFiles();
+            storage.SortFilesByOrder();
 
 
             foreach (StorageGroupFile file in storage.FileList)

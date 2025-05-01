@@ -2,12 +2,14 @@
 using MetaDataParser.Services;
 using MetaDataParser.Services.Process;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 namespace MetaDataParser
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Metadata parser " + Assembly.GetEntryAssembly().GetName().Version);
             Console.WriteLine("Compiler data refresh.");
             if (args.Length == 0)
             {

@@ -17,13 +17,10 @@ namespace MetaDataParser.Services.Process
             string filePathIndex = Path.Combine(rootPath, storage.IndexTableName);
             string filePathIndexHeader = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(storage.IndexTableName) + "_h" + Path.GetExtension(storage.IndexTableName));
 
-
             StringBuilder indexHeader = new(512);
             StringBuilder indexDataFirst = new(512);
             StringBuilder indexData = new(512);
             StringBuilder indexTable = new(512);
-            //StringBuilder indexTable2 = new(512);
-            //indexTable2.Append(storage.Prefix).Append("_Pattern_Table:\n");
             if (!storage.IndexByLevel)
             {
                 indexTable.Append(storage.Prefix).Append("_index_table:").Append('\n');
@@ -32,16 +29,10 @@ namespace MetaDataParser.Services.Process
             {
                 indexHeader.Append(storage.Prefix).AppendLine("_Root_index_table:");
             }
-
-
             indexDataFirst.Append("\t\tmmu\t$").Append(storage.Org).Append(", ").Append(storage.InitalBank).Append('\n');
             indexDataFirst.Append("\t\torg\t\t$").Append(storage.Org).Append("\n");
-            
-
-
-            storage.SortFiles();
+            storage.SortFilesByFilePath();
             string currentLevel = string.Empty;
-
             foreach (StorageGroupFile file in storage.FileList)
             {
                 if (pageSize + file.Length > 8192)
@@ -65,18 +56,7 @@ namespace MetaDataParser.Services.Process
                     }
                 }
                 indexTable.Append("\t\tdw\t$").Append((pageSize + pageNumberbin).ToString("X4")).Append('\n');
-                //if (storage.Dynamic)
-                //{
-                //    indexData.Append("\t\tdb\t$").Append(file.Width.ToString("X2")).Append("\t\t; Width\n");
-                //    indexData.Append("\t\tdb\t$").Append(file.Height.ToString("X2")).Append("\t\t; Heigth\n");
-                //    pageSize += 2;
-                //}
                 indexData.Append("\t\tincbin\t\"").Append(file.Path).Append("\"").Append("\t\t\t;").AppendLine(file.Order.ToString());
-
-                //indexHeader.Append(file.Tag.ToUpper()).Append("_PATTERN_ID").Append("\t\t\tequ\t$").Append(patternCode.ToString("X2")).Append('\n');
-                //indexHeader.Append(file.Tag.ToUpper()).Append("_PATTERN_COUNT").Append("\t\t\tequ\t$").Append(file.Count.ToString("X2")).Append('\n');
-                //indexTable2.Append("\t\tdb\t").Append(file.Tag.ToUpper()).Append("_PATTERN_COUNT").Append('\n');
-
                 pageSize += file.Length;
                 patternCode++;
             }
@@ -88,13 +68,6 @@ namespace MetaDataParser.Services.Process
             indexDataFirst.Append("\n\n");
             indexDataFirst.Append(indexData);
             File.WriteAllText(filePathData, indexDataFirst.ToString());
-            //if (storage.IndexHeader)
-            //{
-            //    File.WriteAllText(filePathIndexHeader, indexHeader.ToString());
-            //}
         }
-
-
-
     }
 }
