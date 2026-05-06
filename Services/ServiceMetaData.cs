@@ -21,38 +21,6 @@ namespace MetaDataParser.Services
             }
         }
 
-        //public void CreateSprite(string filePath, Sprite sprite)
-        //{
-        //    if (!File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(sprite, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //}
-
-        //public void CreatePattern(string filePath, Pattern pattern)
-        //{
-        //    if (!File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(pattern, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //}
-
-        //public void CreateScene(string filePath, Scene scene)
-        //{
-        //    if (!File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(scene, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //}
 
         public T ReadObject<T>(string filePath)
         {
@@ -110,50 +78,6 @@ namespace MetaDataParser.Services
                 throw new Exception($"File {filePath} doesn't exist.");
             }
         }
-        //public void UpdateSprite(string filePath, Sprite sprite)
-        //{
-        //    if (File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(sprite, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //    else
-        //    {
-        //        throw new Exception($"File {filePath} doesn't exist.");
-        //    }
-        //}
-
-        //public void UpdatePattern(string filePath, Pattern pattern)
-        //{
-        //    if (File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(pattern, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //    else
-        //    {
-        //        throw new Exception($"File {filePath} doesn't exist.");
-        //    }
-        //}
-
-        //public void UpdateScene(string filePath, Scene pattern)
-        //{
-        //    if (File.Exists(filePath))
-        //    {
-        //        JsonSerializerOptions options = new();
-        //        options.WriteIndented = true;
-        //        string data = JsonSerializer.Serialize(pattern, options);
-        //        File.WriteAllText(filePath, data);
-        //    }
-        //    else
-        //    {
-        //        throw new Exception($"File {filePath} doesn't exist.");
-        //    }
-        //}
-
+  
     }
 }

@@ -1,11 +1,15 @@
-﻿using MetaDataParser.Services;
+﻿using MetaDataParser.Entities;
+using MetaDataParser.Services;
+using MetaDataParser.Services.Process;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 namespace MetaDataParser
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Metadata parser " + Assembly.GetEntryAssembly().GetName().Version);
             Console.WriteLine("Compiler data refresh.");
             if (args.Length == 0)
             {
@@ -25,7 +29,11 @@ namespace MetaDataParser
             .AddSingleton<IServiceMetaData, ServiceMetaData>()
             .BuildServiceProvider();
             var scan = services.GetRequiredService<IScanProject>();
-            scan.Scan(args[0]);
+            List<StorageGroup> groups = scan.Scan(args[0]);
+
+            ProcessProject process = new ProcessProject();
+            process.Process(groups);
+
             Console.WriteLine("Finished refresh");
             Environment.ExitCode = 0;
         }
