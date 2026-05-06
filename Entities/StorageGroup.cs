@@ -117,7 +117,8 @@ namespace MetaDataParser.Entities
                 {
                     return (MaxEntries * 2) + InitialOffset ;
                 }
-                return Dynamic ? (MaxEntries * 2) + InitialOffset : InitialOffset;
+                // return Dynamic ? (MaxEntries * 2) + InitialOffset : InitialOffset;
+                return (MaxEntries * 2) + InitialOffset;
             }
         }
 
